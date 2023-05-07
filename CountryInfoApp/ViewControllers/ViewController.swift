@@ -10,10 +10,11 @@ import UIKit
 final class ViewController: UIViewController {
     
     @IBOutlet var imageView: UIImageView!
+    @IBOutlet var nameLabel: UILabel!
+    @IBOutlet var codeLabel: UILabel!
+    @IBOutlet var emojiLabel: UILabel!
     
-    private let baseUrl:URL = URL(string: "https://restcountries.com/v3.1/")!
-   // private let imageUrl: URL = URL(string: "https://restcountries.com/v3.1/all?fields=flags")!
-    private let imageUrl: URL = URL(string: "https://flagcdn.com/w320/es.png")!
+    private let baseUrl = URL(string: "https://cdn.jsdelivr.net/npm/country-flag-emoji-json@2.0.0/dist/index.json")!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,16 +22,18 @@ final class ViewController: UIViewController {
     }
     
     private func fetchCountry() {
-        URLSession.shared.dataTask(with: imageUrl) { [weak self] data, response, error in
-            guard let data, let response else {
+        URLSession.shared.dataTask(with: baseUrl) { data, _, error in
+            guard let data else {
                 print(error?.localizedDescription ?? "No error description")
                 return
             }
             
-            print(response)
-            
-            DispatchQueue.main.async {
-                self?.imageView.image = UIImage(data: data)
+            do {
+                let decoder = JSONDecoder()
+                let country = try decoder.decode([Country].self, from: data)
+                print(country)
+            } catch {
+                print(error.localizedDescription)
             }
         }.resume()
     }
